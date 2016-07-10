@@ -13,9 +13,11 @@
 
 #define ARDUINO
 
-void setPWM(int pwmPercentToWrite);
+void initializePWM();
 
-int getPWM();
+void setPWM(int pwmPercentToWrite[]);
+
+int * getPWM();
 
 void enable();
 

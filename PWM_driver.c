@@ -8,8 +8,12 @@
 // LICENSE: 
 //
 
-#include "PWM_driver.h"
 #include <stdlib.h>
+#include "PWM_driver.h"
+
+//-------------------------------------------
+// Local Variables
+//-------------------------------------------
 
 // PWM rate expressed as int from 0-100
 static int pwmPercent[3];
@@ -23,13 +27,17 @@ const float bitResolution = pow(2,10)-1;
 // Boolean 
 static int enabled;
 
+//-------------------------------------------
+// Functions
+//-------------------------------------------
+
 // Initialization function
 void initializePWM(){
   
 }
 
 // Set raw PWM outputs from percents
-void setPWM(int pwmPercentToWrite[3]){
+void setPWM(int pwmPercentToWrite[]){
   if (enabled){
     for (int i = 0; i < 3; i++) { 
       pwmPercent[i] = pwmPercentToWrite[i];
@@ -44,11 +52,13 @@ int * getPWM(){
   return pwmPercent;
 }
 
+// Enable control of PWM's for this leg
 void enable(){
   enabled = true;
   updatePWM();
 }
 
+// Disable control of PWM's for this leg
 void disable(){
   softStop();
   enabled = false;
@@ -56,24 +66,27 @@ void disable(){
 
 // Ramp the PWM to 0
 void softStop(){
-  #ifdef ARDUINO
-  unsigned long rampTime = millis();
-  #endif
-
   for (int i; i = pwmPercent; i--){
-    for (int i = 0; i < 3; i++) { 
-      pwmPercent[i]--;
-      #ifdef ARDUINO
-      delay(1);
-      #endif
+    for (int j = 0; j < 3; j++) { 
+      pwmPercent[j]--;
     }
+    #ifdef ARDUINO
+    delay(1); // pause 1ms
+    // Note that this function will block
+    // execution of main loop 
+    #endif
   }
 }
 
+//-------------------------------------------
+// Local functions
+//-------------------------------------------
+
 // interface to physical PWM output
 static void updatePWM(){
+  #ifdef ARDUINO
   // Arduino output
-  
+  #endif
 }
 
 
