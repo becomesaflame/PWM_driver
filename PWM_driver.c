@@ -19,7 +19,7 @@
 static int pwmPercent[3];
 
 // raw PWM rate
-static int pwmRaw[3];
+static float pwmRaw[3];
 
 // Max bits for PWM 
 const float bitResolution = pow(2,10)-1;
@@ -39,11 +39,11 @@ void initializePWM(){
 // Set raw PWM outputs from percents
 void setPWM(int pwmPercentToWrite[]){
   if (enabled){
+    pwmPercent = pwmPercentToWrite;
     for (int i = 0; i < 3; i++) { 
-      pwmPercent[i] = pwmPercentToWrite[i];
-      pwmRaw[i] = (pwmPercent[i]/100) * bitResolution;
-      updatePWM();
+      pwmRaw[i] = percent2raw(pwmPercent[i]);
     }
+    updatePWM();
   }
 }
 
@@ -69,6 +69,7 @@ void softStop(){
   for (int i; i = pwmPercent; i--){
     for (int j = 0; j < 3; j++) { 
       pwmPercent[j]--;
+      pwmRaw[j] = percent2raw(pwmPercent[j]);
     }
     #ifdef ARDUINO
     delay(1); // pause 1ms
@@ -86,8 +87,20 @@ void softStop(){
 static void updatePWM(){
   #ifdef ARDUINO
   // Arduino output
+  // Make sure both sides of a valve aren't opening
+  if (kneePWM2_extend && kneePWM1_retract) {
+    softStop();
+    Serial.print("ERROR - tried to open both sides of a valve");
+  } 
+  else {
+    analogWrite(kneePWM2_extend, PWM_value[2]);
+  }
   #endif
 }
 
+// Convert PWM percent to raw PWM
+static float percent2raw(float percent){
+  float raw = (percent/100) * bitResolution;
+}
 
 // END OF FILE
