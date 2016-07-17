@@ -16,10 +16,10 @@
 //-------------------------------------------
 
 // PWM rate expressed as int from 0-100
-static int pwmPercent[3];
+static int pwmPercent[6];
 
 // raw PWM rate
-static float pwmRaw[3];
+static float pwmRaw[6];
 
 // Max bits for PWM 
 const float bitResolution = pow(2,10)-1;
@@ -31,16 +31,16 @@ static int enabled;
 // Functions
 //-------------------------------------------
 
-// Initialization function
-void initializePWM(){
-  
-}
+// // Initialization function
+// void initializePWM(){
+//   
+// }
 
 // Set raw PWM outputs from percents
 void setPWM(int pwmPercentToWrite[]){
   if (enabled){
     pwmPercent = pwmPercentToWrite;
-    for (int i = 0; i < 3; i++) { 
+    for (int i = 0; i < 6; i++) { 
       pwmRaw[i] = percent2raw(pwmPercent[i]);
     }
     updatePWM();
@@ -66,10 +66,10 @@ void disable(){
 
 // Ramp the PWM to 0
 void softStop(){
-  for (int i; i = pwmPercent; i--){
-    for (int j = 0; j < 3; j++) { 
-      pwmPercent[j]--;
-      pwmRaw[j] = percent2raw(pwmPercent[j]);
+  for (int i = 0; i < 6; i++) { 
+    for (int j; j = pwmPercent[i]; j--){
+      pwmPercent[i]--;
+      pwmRaw[i] = percent2raw(pwmPercent[i]);
     }
     #ifdef ARDUINO
     delay(1); // pause 1ms
@@ -87,13 +87,20 @@ void softStop(){
 static void updatePWM(){
   #ifdef ARDUINO
   // Arduino output
-  // Make sure both sides of a valve aren't opening
-  if (kneePWM2_extend && kneePWM1_retract) {
+  // Make sure both sides of any valve aren't opening
+  if ((PWM_value[0] && PWM_value[1]) || 
+      (PWM_value[2] && PWM_value[3]) ||
+      (PWM_value[4] && PWM_value[5])) {
     softStop();
     Serial.print("ERROR - tried to open both sides of a valve");
   } 
   else {
-    analogWrite(kneePWM2_extend, PWM_value[2]);
+    analogWrite(kneePWM1_retract, PWM_value[0]);
+    analogWrite(kneePWM2_extend,  PWM_value[1]);
+    analogWrite(thighPWM1_up,     PWM_value[2];
+    analogWrite(thighPWM2_down,   PWM_value[3];
+    analogWrite(hipPWM1_forward,  PWM_value[4];
+    analogWrite(hipPWM2_reverse,  PWM_value[5];
   }
   #endif
 }
